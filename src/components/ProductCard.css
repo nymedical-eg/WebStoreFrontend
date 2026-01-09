@@ -1,0 +1,88 @@
+.product-card {
+    background: var(--color-bg);
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+[data-theme='dark'] .product-card {
+    border-color: #333;
+    background: var(--color-bg-alt);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+}
+
+.product-image-container {
+    height: 250px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fcfcfc;
+}
+
+[data-theme='dark'] .product-image-container {
+    background-color: #fcfcfc; /* Keep image container light/neutral if images have white backgrounds, or adjust if needed. Usually product images on white bg look best on white. */
+    /* If user wants full dark mode, we might need a different approach, but the request was specifically about the card background being white. */
+}
+
+.product-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.product-info {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.product-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.product-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-primary); /* Golden */
+}
+
+.add-to-cart-btn {
+    margin-top: 1rem;
+    background: linear-gradient(135deg, #D4AF37 0%, #B5952F 100%);
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: opacity 0.2s, filter 0.2s;
+    cursor: pointer;
+}
+
+.add-to-cart-btn:hover {
+    opacity: 0.9;
+}
+
+.add-to-cart-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+    opacity: 0.7;
+    box-shadow: none;
+}
+
+.product-card.out-of-stock .product-image {
+    filter: grayscale(100%);
+    opacity: 0.6;
+}

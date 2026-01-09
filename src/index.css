@@ -1,0 +1,44 @@
+:root {
+  --color-primary: #D4AF37; /* Gold */
+  --color-primary-dark: #B5952F;
+  --color-text: #1A1A1A;
+  --color-text-light: #666666;
+  --color-bg: #FFFFFF;
+  --color-bg-alt: #F8F9FA;
+  
+  --font-main: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  
+  font-family: var(--font-main);
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: var(--color-text);
+  background-color: var(--color-bg);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme='dark'] {
+  --color-text: #F8F9FA;
+  --color-text-light: #B0B0B0;
+  --color-bg: #121212;
+  --color-bg-alt: #1E1E1E;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button {
+  cursor: pointer;
+}
