@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Edit2, Trash2, X, Loader2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Loader2, ArrowLeft } from 'lucide-react';
 
 const AdminProductsPage = () => {
     const { user } = useAuth();
@@ -125,6 +125,24 @@ const AdminProductsPage = () => {
 
     return (
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            <div style={{ marginBottom: '1rem' }}>
+                <a 
+                    href="/admin" 
+                    style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem', 
+                        backgroundColor: '#D4AF37', 
+                        color: '#000', 
+                        padding: '0.5rem 1rem', 
+                        borderRadius: '4px', 
+                        textDecoration: 'none', 
+                        fontWeight: 'bold' 
+                    }}
+                >
+                    <ArrowLeft size={20} /> Back to Dashboard
+                </a>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <h1>Manage Products</h1>
                 <button 

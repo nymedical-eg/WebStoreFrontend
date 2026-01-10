@@ -12,7 +12,10 @@ import SignInPage from './pages/SignInPage';
 import ProfilePage from './pages/ProfilePage';
 import CartPage from './pages/CartPage';
 import AdminPage from './pages/AdminPage';
+
 import AdminProductsPage from './pages/AdminProductsPage';
+import AdminOrdersPage from './pages/AdminOrdersPage';
+import AdminAdminsPage from './pages/AdminAdminsPage';
 import './App.css';
 
 import MainLayout from './layouts/MainLayout';
@@ -40,6 +43,8 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminPage />} />
               <Route path="products" element={<AdminProductsPage />} />
+              <Route path="orders" element={<AdminOrdersPage />} />
+              <Route path="admins" element={<AdminAdminsPage />} />
               {/* Future admin routes */}
           </Route>
         </Routes>
