@@ -129,11 +129,16 @@ const AdminOrdersPage = () => {
                         // For 'all', just search text fields
                         const dateStr = new Date(order.createdAt).toLocaleDateString().toLowerCase();
                         const totalStr = order.totalAmount.toString();
+                        const productMatch = order.products?.some(p => 
+                            p.product?.name?.toLowerCase().includes(lowerText)
+                        );
+
                         return statusStr.includes(lowerText) || 
                                totalStr.includes(lowerText) || 
                                idStr.includes(lowerText) || 
                                userStr.includes(lowerText) || 
-                               dateStr.includes(lowerText);
+                               dateStr.includes(lowerText) ||
+                               productMatch;
                 }
             });
         }

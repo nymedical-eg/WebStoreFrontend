@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Edit, X, Check, Package, Phone, User, Mail } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 
 const ProfilePage = () => {
+    usePageTitle('My Profile');
     const { user, login, logout } = useAuth(); // Assuming login helps update user state, or we might need to manually update local user state if AuthContext doesn't expose a 'updateUser' method. Re-fetching profile might be best.
     const navigate = useNavigate();
     

@@ -4,8 +4,10 @@ import { Loader2, X, Plus, Minus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './ShopPage.css';
+import usePageTitle from '../hooks/usePageTitle';
 
 const ShopPage = () => {
+    usePageTitle('Shop');
     const { user, fetchCartCount } = useAuth();
     const navigate = useNavigate();
     const [products, setProducts] = useState([]);

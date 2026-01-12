@@ -3,8 +3,10 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './SignInPage.css';
+import usePageTitle from '../hooks/usePageTitle';
 
 const SignInPage = () => {
+    usePageTitle('Sign In');
     const navigate = useNavigate();
     const { login } = useAuth();
     const [isLogin, setIsLogin] = useState(true);

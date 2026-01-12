@@ -3,9 +3,13 @@ import { useAuth } from '../context/AuthContext';
 import { Plus, Edit2, Trash2, X, Loader2, ArrowLeft } from 'lucide-react';
 
 const AdminProductsPage = () => {
+    const CLOUD_NAME = "dndk6lbq3"; 
+    const UPLOAD_PRESET = "NYmedUploadPreset";
+
     const { user } = useAuth();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
@@ -38,10 +42,62 @@ const AdminProductsPage = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        
+        // Handle number inputs cleanly to avoid "07" but allow "0"
+        let newValue = value;
+        if (name === 'stock' || name === 'price') {
+             // Remove leading zero if followed by integer (e.g. "07" -> "7")
+             // But allow "0", "0.", "0.5" etc
+             if (newValue.length > 1 && newValue.startsWith('0') && newValue[1] !== '.') {
+                 newValue = newValue.substring(1);
+             }
+        }
+
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'stock' || name === 'price' ? Number(value) : value
+            [name]: newValue
         }));
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        const data = new FormData();
+        data.append("file", file);
+        data.append("upload_preset", UPLOAD_PRESET);
+        data.append("cloud_name", CLOUD_NAME);
+
+        try {
+            if (CLOUD_NAME === "YOUR_CLOUD_NAME" || UPLOAD_PRESET === "YOUR_UNSIGNED_UPLOAD_PRESET") {
+               alert("Please set your Cloudinary Cloud Name and Upload Preset in the code!");
+               setUploading(false);
+               return;
+            }
+
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+                method: "POST",
+                body: data
+            });
+
+            const uploadedImage = await res.json();
+            
+            if (uploadedImage.secure_url) {
+                setFormData(prev => ({
+                    ...prev,
+                    image: uploadedImage.secure_url
+                }));
+            } else {
+                 alert("Upload failed. Check console for details.");
+                 console.error("Cloudinary Error:", uploadedImage);
+            }
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("Error uploading image");
+        } finally {
+            setUploading(false);
+        }
     };
 
     const openModal = (product = null) => {
@@ -82,7 +138,11 @@ const AdminProductsPage = () => {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     'x-role': user.role
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    ...formData,
+                    stock: Number(formData.stock),
+                    price: Number(formData.price)
+                })
             });
 
             if (res.ok) {
@@ -287,14 +347,26 @@ const AdminProductsPage = () => {
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Image URL</label>
+                                <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Product Image</label>
+                                <input 
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    style={{ padding: '0.8rem', backgroundColor: 'var(--bg-secondary)', border: '1px solid #D4AF37', color: 'var(--text-primary)', borderRadius: '4px' }}
+                                />
+                                {uploading && <p style={{ fontSize: '0.8rem', color: '#D4AF37' }}>Uploading...</p>}
+                                {formData.image && (
+                                    <div style={{ marginTop: '0.5rem' }}>
+                                        <p style={{ fontSize: '0.8rem', marginBottom: '0.2rem' }}>Preview:</p>
+                                        <img src={formData.image} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #D4AF37' }} />
+                                    </div>
+                                )}
                                 <input 
                                     name="image" 
-                                    placeholder="https://" 
+                                    type="hidden"
                                     value={formData.image} 
-                                    onChange={handleInputChange}
+                                    readOnly
                                     required
-                                    style={{ padding: '0.8rem', backgroundColor: 'var(--bg-secondary)', border: '1px solid #D4AF37', color: 'var(--text-primary)', borderRadius: '4px' }}
                                 />
                             </div>
 
@@ -305,7 +377,7 @@ const AdminProductsPage = () => {
                                         name="price" 
                                         type="number" 
                                         placeholder="0.00" 
-                                        step="0.5"
+                                        step="0.01"
                                         min="0"
                                         value={formData.price} 
                                         onChange={handleInputChange}
@@ -322,12 +394,7 @@ const AdminProductsPage = () => {
                                         step="1"
                                         min="0"
                                         value={formData.stock} 
-                                        onChange={(e) => {
-                                             // Ensure integer logic manually as well if needed, though step=1 helps
-                                            const val = e.target.value;
-                                            if (val.includes('.')) return; 
-                                            handleInputChange(e);
-                                        }}
+                                        onChange={handleInputChange}
                                         required
                                         style={{ padding: '0.8rem', backgroundColor: 'var(--bg-secondary)', border: '1px solid #D4AF37', color: 'var(--text-primary)', borderRadius: '4px' }}
                                     />
@@ -335,6 +402,7 @@ const AdminProductsPage = () => {
                             </div>
                             <button 
                                 type="submit" 
+                                disabled={uploading}
                                 style={{ 
                                     marginTop: '1rem', 
                                     backgroundColor: '#D4AF37', 
@@ -346,7 +414,7 @@ const AdminProductsPage = () => {
                                     cursor: 'pointer' 
                                 }}
                             >
-                                {editingProduct ? 'Save Changes' : 'Create Product'}
+                                {uploading ? 'Uploading Image...' : (editingProduct ? 'Save Changes' : 'Create Product')}
                             </button>
                         </form>
                     </div>

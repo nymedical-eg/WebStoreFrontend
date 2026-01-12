@@ -21,13 +21,17 @@ const Header = () => {
         <header className="header">
             <div className="header-container">
                 <Link to="/" className="logo-container" style={{ textDecoration: 'none' }}>
+                    {/* 
                     <div className="logo-text">
                         <span className="logo-main">N&Y</span>
                         <span className="logo-sub">MEDICAL EQUIPMENT</span>
-                    </div>
+                    </div> 
+                    */}
+                    <img src="/src/images/NYmed Alpha icon.png" alt="N&Y Medical" style={{ height: '50px', width: 'auto' }} />
                 </Link>
                 
                 <nav className="nav-links">
+                    <Link to="/" className="nav-link">Home</Link>
                     <Link to="/shop" className="nav-link">Shop</Link>
                     <a href="#kits" className="nav-link">Student Kits</a>
                     <Link to="/about" className="nav-link">About</Link>

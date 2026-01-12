@@ -1,4 +1,7 @@
+import usePageTitle from '../hooks/usePageTitle';
+
 const ContactPage = () => {
+    usePageTitle('Contact Us');
     return (
         <div style={{ padding: '4rem 2rem', maxWidth: '800px', margin: '0 auto' }}>
             <h1>Contact Us</h1>

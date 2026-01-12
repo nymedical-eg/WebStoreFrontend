@@ -1,4 +1,7 @@
+import usePageTitle from '../hooks/usePageTitle';
+
 const AboutPage = () => {
+    usePageTitle('About Us');
     return (
         <div style={{ padding: '4rem 2rem', maxWidth: '800px', margin: '0 auto' }}>
             <h1>About Us</h1>

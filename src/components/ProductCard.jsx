@@ -11,13 +11,15 @@ const ProductCard = ({ title, price, image, stock, onAddToCart }) => {
             <div className="product-info">
                 <h3 className="product-title">{title}</h3>
                 <p className="product-price">{price} EGP</p>
-                <button 
-                    className="add-to-cart-btn" 
-                    disabled={isOutOfStock}
-                    onClick={() => !isOutOfStock && onAddToCart()}
-                >
-                    {isOutOfStock ? "Out of Stock" : "Add to Cart"}
-                </button>
+                {onAddToCart && (
+                    <button 
+                        className="add-to-cart-btn" 
+                        disabled={isOutOfStock}
+                        onClick={() => !isOutOfStock && onAddToCart()}
+                    >
+                        {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                    </button>
+                )}
             </div>
         </div>
     );

@@ -3,8 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { Loader2, Trash2, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './CartPage.css';
+import usePageTitle from '../hooks/usePageTitle';
 
 const CartPage = () => {
+    usePageTitle('Your Cart');
     const { user, fetchCartCount } = useAuth();
     const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
