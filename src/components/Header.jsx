@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './Header.css';
+import logo from '../images/NYmedAlphaLogo.png';
 
 const Header = () => {
     const { user, cartCount } = useAuth();
@@ -27,7 +28,7 @@ const Header = () => {
                         <span className="logo-sub">MEDICAL EQUIPMENT</span>
                     </div> 
                     */}
-                    <img src="/src/images/NYmed Alpha icon.png" alt="N&Y Medical" style={{ height: '50px', width: 'auto' }} />
+                    <img src={logo} alt="N&Y Medical" style={{ height: '50px', width: 'auto' }} />
                 </Link>
                 
                 <nav className="nav-links">
