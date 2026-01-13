@@ -1,4 +1,4 @@
-import { ShoppingCart, LogIn, Moon, Sun } from 'lucide-react';
+import { ShoppingCart, LogIn, Moon, Sun, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,7 @@ import logo from '../images/NYmedAlphaLogo.png';
 const Header = () => {
     const { user, cartCount } = useAuth();
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
@@ -18,10 +19,18 @@ const Header = () => {
         setTheme(prev => prev === 'light' ? 'dark' : 'light');
     };
 
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+    };
+
     return (
         <header className="header">
             <div className="header-container">
-                <Link to="/" className="logo-container" style={{ textDecoration: 'none' }}>
+                <Link to="/" className="logo-container" style={{ textDecoration: 'none' }} onClick={closeMobileMenu}>
                     {/* 
                     <div className="logo-text">
                         <span className="logo-main">N&Y</span>
@@ -40,11 +49,11 @@ const Header = () => {
                 </nav>
 
                 <div className="header-actions">
-                    <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle Dark Mode">
+                    <button className="theme-toggle-btn desktop-only" onClick={toggleTheme} aria-label="Toggle Dark Mode">
                         {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                     </button>
 
-                    <Link to={user ? "/profile" : "/signin"} className="auth-link">
+                    <Link to={user ? "/profile" : "/signin"} className="auth-link" onClick={closeMobileMenu}>
                          {user ? (
                             <span className="welcome-text">Welcome, {user.firstName || user.first_name || user.username || user.name || 'User'}</span>
                          ) : (
@@ -55,13 +64,38 @@ const Header = () => {
                          )}
                     </Link>
 
-                    <Link to="/cart">
+                    <Link to="/cart" onClick={closeMobileMenu}>
                         <button className="cart-btn">
                             <ShoppingCart size={24} color="#D4AF37" />
                             <span className="cart-badge">{cartCount}</span>
                         </button>
                     </Link>
+
+                    <button className="burger-menu-btn" onClick={toggleMobileMenu} aria-label="Toggle Menu">
+                        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
                 </div>
+            </div>
+
+            {/* Mobile Menu Overlay */}
+            <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`} onClick={closeMobileMenu}></div>
+
+            {/* Mobile Menu */}
+            <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
+                <nav className="mobile-nav-links">
+                    <Link to="/" className="mobile-nav-link" onClick={closeMobileMenu}>Home</Link>
+                    <Link to="/shop" className="mobile-nav-link" onClick={closeMobileMenu}>Shop</Link>
+                    <a href="#kits" className="mobile-nav-link" onClick={closeMobileMenu}>Student Kits</a>
+                    <Link to="/about" className="mobile-nav-link" onClick={closeMobileMenu}>About</Link>
+                    {user?.role === 'admin' && <Link to="/admin" className="mobile-nav-link admin-link" onClick={closeMobileMenu}>Admin</Link>}
+                    
+                    <div className="mobile-theme-toggle">
+                        <span>Dark Mode</span>
+                        <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle Dark Mode">
+                            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+                        </button>
+                    </div>
+                </nav>
             </div>
         </header>
     );
