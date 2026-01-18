@@ -9,7 +9,7 @@ const PrivacyPolicyPage = () => {
 
             <section className="mb-8">
                 <p>
-                    This Privacy Policy describes the policies of <strong>N&Y Medical Equipment</strong>, Cairo, Egypt (email: nymedical.eg@gmail.com, phone: 01116506071) on the collection, use and disclosure of your information that we collect when you use our website (<a href="https://nymedical-eg.web.app/" className="text-yellow-600 hover:underline">https://nymedical-eg.web.app/</a>) (the “Service”).
+                    This Privacy Policy describes the policies of <strong>N&Y Medical Equipment</strong>, Cairo, Egypt (email: nymedical.eg@gmail.com) on the collection, use and disclosure of your information that we collect when you use our website (<a href="https://nymedical-eg.web.app/" className="text-yellow-600 hover:underline">https://nymedical-eg.web.app/</a>) (the “Service”).
                 </p>
                 <p className="mt-4">
                     By accessing or using the Service, you are consenting to the collection, use and disclosure of your information in accordance with this Privacy Policy. If you do not consent to the same, please do not access or use the Service.
