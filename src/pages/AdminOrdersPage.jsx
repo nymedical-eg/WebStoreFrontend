@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Search, Filter, Edit, Check, Loader2, ArrowLeft } from 'lucide-react';
+import { Search, Filter, Edit, Check, Loader2, ArrowLeft, Tag } from 'lucide-react';
 
 const AdminOrdersPage = () => {
     const { user } = useAuth();
@@ -13,6 +13,7 @@ const AdminOrdersPage = () => {
     const [filterField, setFilterField] = useState('all');
     const [filterOperator, setFilterOperator] = useState('contains'); // 'contains', 'greater', 'less', 'equal', 'after', 'before'
     const [startDate, setStartDate] = useState('');
+    const [couponFilterType, setCouponFilterType] = useState('any'); // 'any', 'none', 'specific'
 
     // Modal State
     const [editingOrder, setEditingOrder] = useState(null);
@@ -35,7 +36,7 @@ const AdminOrdersPage = () => {
 
     useEffect(() => {
         filterOrders();
-    }, [filterText, filterField, filterOperator, startDate, orders]);
+    }, [filterText, filterField, filterOperator, startDate, orders, couponFilterType]);
 
     // ... (fetchOrders and filterOrders) ...
 
@@ -110,6 +111,22 @@ const AdminOrdersPage = () => {
             });
         } 
         
+        else if (filterField === 'coupon') {
+            filtered = orders.filter(order => {
+                const hasCoupon = order.couponApplied && order.couponApplied.code;
+                
+                if (couponFilterType === 'any') return hasCoupon;
+                if (couponFilterType === 'none') return !hasCoupon;
+                
+                if (couponFilterType === 'specific') {
+                    if (!filterText) return hasCoupon; // If specific but no text, show all with coupons (or maybe none?) - let's show match
+                    const code = order.couponApplied?.code?.toLowerCase() || '';
+                    return code.includes(filterText.toLowerCase());
+                }
+                return true;
+            });
+        }
+
         else {
              if (!filterText) {
                 setFilteredOrders(orders);
@@ -227,6 +244,31 @@ const AdminOrdersPage = () => {
              )
         }
 
+        if (filterField === 'coupon') {
+             return (
+                 <>
+                    <select 
+                        value={couponFilterType} 
+                        onChange={(e) => setCouponFilterType(e.target.value)}
+                        style={selectStyle}
+                    >
+                        <option value="any">Has Coupon (Any)</option>
+                        <option value="none">No Coupon</option>
+                        <option value="specific">Specific Code</option>
+                    </select>
+                    
+                    {couponFilterType === 'specific' && (
+                        <input 
+                            placeholder="Coupon Code..."
+                            value={filterText}
+                            onChange={(e) => setFilterText(e.target.value)}
+                            style={inputStyle}
+                        />
+                    )}
+                 </>
+             )
+        }
+
         // Default text search
         return (
              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
@@ -299,6 +341,7 @@ const AdminOrdersPage = () => {
                         <option value="status">Status</option>
                         <option value="_id">Order ID</option>
                         <option value="totalAmount">Total Amount</option>
+                        <option value="coupon">Coupon Usage</option>
                         <option value="user">User</option>
                         <option value="createdAt">Date</option>
                     </select>
@@ -340,6 +383,16 @@ const AdminOrdersPage = () => {
                                     <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#D4AF37' }}>
                                         {order.totalAmount} EGP
                                     </p>
+                                    {order.couponApplied && (
+                                        <div style={{ fontSize: '0.85rem', marginTop: '0.2rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                                            <span style={{ color: '#D4AF37', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                <Tag size={12} /> {order.couponApplied.code}
+                                            </span>
+                                            <span style={{ color: '#ef4444' }}>
+                                                -{order.couponApplied.discountAmount} EGP
+                                            </span>
+                                        </div>
+                                    )}
                                     <span style={{ 
                                         display: 'inline-block', 
                                         padding: '0.25rem 0.75rem', 

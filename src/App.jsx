@@ -16,6 +16,7 @@ import AdminPage from './pages/AdminPage';
 import AdminProductsPage from './pages/AdminProductsPage';
 import AdminOrdersPage from './pages/AdminOrdersPage';
 import AdminAdminsPage from './pages/AdminAdminsPage';
+import AdminCouponsPage from './pages/AdminCouponsPage';
 import './App.css';
 
 import MainLayout from './layouts/MainLayout';
@@ -45,6 +46,7 @@ function App() {
               <Route path="products" element={<AdminProductsPage />} />
               <Route path="orders" element={<AdminOrdersPage />} />
               <Route path="admins" element={<AdminAdminsPage />} />
+              <Route path="coupons" element={<AdminCouponsPage />} />
               {/* Future admin routes */}
           </Route>
         </Routes>

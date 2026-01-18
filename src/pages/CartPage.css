@@ -182,3 +182,102 @@
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
 }
+
+/* Coupon Section */
+.coupon-section {
+    background-color: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin: 2rem 0;
+    margin-left: auto;
+    max-width: 400px; /* Keep it compact */
+}
+
+.coupon-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.coupon-input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.apply-coupon-btn {
+    background-color: transparent;
+    border: 1px solid #D4AF37;
+    color: #D4AF37;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.apply-coupon-btn:hover:not(:disabled) {
+    background-color: rgba(212, 175, 55, 0.1);
+}
+
+.applied-coupon {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(212, 175, 55, 0.1);
+    padding: 0.8rem;
+    border-radius: 4px;
+    border: 1px solid #D4AF37;
+}
+
+.coupon-code {
+    font-weight: bold;
+    color: #D4AF37;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.remove-coupon-btn {
+    background: none;
+    border: none;
+    color: #ff4444;
+    cursor: pointer;
+    padding: 0.2rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Cart Summary Layout */
+.cart-summary-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.cart-summary-row.total {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    font-weight: bold;
+}
+
+.cart-summary-label {
+    min-width: 100px;
+}
+
+.cart-summary-value {
+    min-width: 100px;
+    text-align: right;
+}
+
+.discount-value {
+    color: #ef4444; /* Red for discount subtraction */
+}

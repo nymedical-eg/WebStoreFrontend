@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Edit, X, Check, Package, Phone, User, Mail } from 'lucide-react';
+import { Loader2, Edit, X, Check, Package, Phone, User, Mail, Tag } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
 
 const ProfilePage = () => {
@@ -222,6 +222,16 @@ const ProfilePage = () => {
                                         <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#D4AF37' }}>
                                             {order.totalAmount} EGP
                                         </p>
+                                        {order.couponApplied && (
+                                            <div style={{ fontSize: '0.85rem', marginTop: '0.2rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                                                <span style={{ color: '#D4AF37', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <Tag size={12} /> {order.couponApplied.code}
+                                                </span>
+                                                <span style={{ color: '#ef4444' }}>
+                                                    -{order.couponApplied.discountAmount} EGP
+                                                </span>
+                                            </div>
+                                        )}
                                         <span style={{ 
                                             display: 'inline-block', 
                                             padding: '0.25rem 0.75rem', 

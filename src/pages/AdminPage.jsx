@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Package, Users, ShoppingBag } from 'lucide-react';
+import { Package, Users, ShoppingBag, Ticket } from 'lucide-react';
 
 const AdminPage = () => {
     const { user } = useAuth();
@@ -20,7 +20,8 @@ const AdminPage = () => {
     const cards = [
         { title: 'Orders', icon: <ShoppingBag size={48} />, path: '/admin/orders', color: '#3b82f6' },
         { title: 'Products', icon: <Package size={48} />, path: '/admin/products', color: '#D4AF37' },
-        { title: 'Admins', icon: <Users size={48} />, path: '/admin/admins', color: '#10b981' }
+        { title: 'Admins', icon: <Users size={48} />, path: '/admin/admins', color: '#10b981' },
+        { title: 'Coupons', icon: <Ticket size={48} />, path: '/admin/coupons', color: '#f43f5e' }
     ];
 
     return (
