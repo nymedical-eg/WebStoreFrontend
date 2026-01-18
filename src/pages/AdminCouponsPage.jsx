@@ -6,6 +6,7 @@ const AdminCouponsPage = () => {
     const { user } = useAuth();
     const [coupons, setCoupons] = useState([]);
     const [products, setProducts] = useState([]); // For product selection
+    const [packages, setPackages] = useState([]); // For package selection
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -18,12 +19,14 @@ const AdminCouponsPage = () => {
         discountPercentage: 0,
         maxUsage: 0,
         maxDiscountValue: 0,
-        applicableProducts: [] 
+        applicableProducts: [],
+        applicablePackages: []
     });
 
     useEffect(() => {
         fetchCoupons();
         fetchProducts();
+        fetchPackages();
     }, []);
 
     const fetchCoupons = async () => {
@@ -57,6 +60,18 @@ const AdminCouponsPage = () => {
         }
     };
 
+    const fetchPackages = async () => {
+        try {
+            const res = await fetch('https://nymedbackend.vercel.app/api/packages');
+            if (res.ok) {
+                const data = await res.json();
+                setPackages(data);
+            }
+        } catch (err) {
+            console.error("Error fetching packages:", err);
+        }
+    };
+
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         
@@ -86,6 +101,17 @@ const AdminCouponsPage = () => {
         });
     };
 
+    const handlePackageToggle = (packageId) => {
+        setFormData(prev => {
+            const currentPackages = prev.applicablePackages || [];
+            if (currentPackages.includes(packageId)) {
+                return { ...prev, applicablePackages: currentPackages.filter(id => id !== packageId) };
+            } else {
+                return { ...prev, applicablePackages: [...currentPackages, packageId] };
+            }
+        });
+    };
+
     const openModal = (coupon = null) => {
         if (coupon) {
             setEditingCoupon(coupon);
@@ -94,7 +120,8 @@ const AdminCouponsPage = () => {
                 discountPercentage: coupon.discountPercentage,
                 maxUsage: coupon.maxUsage,
                 maxDiscountValue: coupon.maxDiscountValue,
-                applicableProducts: coupon.applicableProducts || []
+                applicableProducts: coupon.applicableProducts || [],
+                applicablePackages: coupon.applicablePackages || []
             });
         } else {
             setEditingCoupon(null);
@@ -103,7 +130,8 @@ const AdminCouponsPage = () => {
                 discountPercentage: 0, 
                 maxUsage: 100, 
                 maxDiscountValue: 250, 
-                applicableProducts: [] 
+                applicableProducts: [],
+                applicablePackages: []
             });
         }
         setIsModalOpen(true);
@@ -265,9 +293,11 @@ const AdminCouponsPage = () => {
                                     {isLimitReached && <span style={{ color: '#ef4444', fontWeight: 'bold', marginLeft: '0.5rem', fontSize: '0.8rem' }}>Limit Reached</span>}
                                 </p>
                                 <p style={{ margin: 0, fontSize: '0.9rem', opacity: 0.8 }}>
-                                    Applies to: {coupon.applicableProducts && coupon.applicableProducts.length > 0 
-                                        ? `${coupon.applicableProducts.length} Product(s)` 
-                                        : 'All Products'}
+                                    Applies to: {
+                                        (coupon.applicableProducts?.length > 0 || coupon.applicablePackages?.length > 0)
+                                        ? `${(coupon.applicableProducts?.length || 0)} Product(s), ${(coupon.applicablePackages?.length || 0)} Package(s)` 
+                                        : 'All Products & Packages'
+                                    }
                                 </p>
                             </div>
 
@@ -441,6 +471,51 @@ const AdminCouponsPage = () => {
                                             <span style={{ fontSize: '0.9rem' }}>{product.name}</span>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Applicable Packages</label>
+                                <p style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '0.5rem' }}>Select packages to apply this coupon to.</p>
+                                
+                                <div style={{ 
+                                    maxHeight: '200px', 
+                                    overflowY: 'auto', 
+                                    border: '1px solid var(--border-color)', 
+                                    borderRadius: '4px', 
+                                    padding: '0.5rem',
+                                    backgroundColor: 'var(--bg-secondary)'
+                                }}>
+                                    {packages.map(pkg => (
+                                        <div 
+                                            key={pkg._id} 
+                                            onClick={() => handlePackageToggle(pkg._id)}
+                                            style={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                gap: '0.5rem', 
+                                                padding: '0.5rem', 
+                                                borderBottom: '1px solid var(--border-color)',
+                                                cursor: 'pointer',
+                                                backgroundColor: formData.applicablePackages.includes(pkg._id) ? 'rgba(212, 175, 55, 0.1)' : 'transparent'
+                                            }}
+                                        >
+                                            <div style={{
+                                                width: '18px',
+                                                height: '18px',
+                                                border: '1px solid #D4AF37',
+                                                borderRadius: '3px',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                backgroundColor: formData.applicablePackages.includes(pkg._id) ? '#D4AF37' : 'transparent'
+                                            }}>
+                                                {formData.applicablePackages.includes(pkg._id) && <Check size={14} color="#000" />}
+                                            </div>
+                                            <span style={{ fontSize: '0.9rem' }}>{pkg.name}</span>
+                                        </div>
+                                    ))}
+                                    {packages.length === 0 && <span style={{ padding: '0.5rem', opacity: 0.6 }}>No packages available.</span>}
                                 </div>
                             </div>
 

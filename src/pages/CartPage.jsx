@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Loader2, Trash2, Plus, Minus, Tag, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ReactGA from 'react-ga4';
 import './CartPage.css';
 import usePageTitle from '../hooks/usePageTitle';
 
@@ -48,6 +49,18 @@ const CartPage = () => {
                 setSubtotal(data.subtotal || data.total || 0); 
                 setDiscount(data.discount || 0);
                 setAppliedCoupon(data.coupon || null);
+                
+                ReactGA.send({ hitType: "pageview", page: "/cart", title: "Cart" });
+                ReactGA.event("view_cart", {
+                    currency: "EGP",
+                    value: data.total || 0,
+                    items: (data.cart || []).map(item => ({
+                        item_id: item.product?._id || item.package?._id || item._id,
+                        item_name: item.product?.name || item.package?.name,
+                        price: item.product?.price || item.package?.price,
+                        quantity: item.quantity
+                    }))
+                });
             }
         } catch (error) {
             console.error("Error fetching cart", error);
@@ -56,13 +69,20 @@ const CartPage = () => {
         }
     };
 
-    const updateQuantity = async (productId, currentQty, delta) => {
+    const updateQuantity = async (itemId, currentQty, delta, isPackage = false) => {
         const newQty = delta === 1 ? 1 : -1; 
         
-        setProcessingId(productId);
+        setProcessingId(itemId);
         setCartMessage(''); 
         
-        const url = `https://nymedbackend.vercel.app/api/cart/${productId}`;
+        // If it's a package, we might need a different endpoint or query param?
+        // Assuming standard cart update endpoint works for both if the backend logic handles it by ID.
+        // However, standard cart PUT usually takes productId/header. If backend is smart, ID is enough.
+        // Let's assume standard endpoint handles ID of item regardless of type, or we pass type.
+        // Based on user "packageId" in POST, usually PUT/DELETE uses cart item ID or product/package ID.
+        // Let's rely on the ID passed.
+        
+        const url = `https://nymedbackend.vercel.app/api/cart/${itemId}`;
         const body = { quantity: newQty };
 
         try {
@@ -101,12 +121,18 @@ const CartPage = () => {
 
         try {
             const token = localStorage.getItem('token');
+            // Check if we need to differentiate route for package? 
+            // Usually valid ID is enough.
             const response = await fetch(`https://nymedbackend.vercel.app/api/cart/${productId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
+                ReactGA.event("remove_from_cart", {
+                   currency: "EGP",
+                   items: [{ item_id: productId }]
+                });
                 await fetchCart(); 
                 fetchCartCount(token); 
             } else {
@@ -130,6 +156,10 @@ const CartPage = () => {
             });
 
             if (response.ok) {
+                ReactGA.event("delete_cart", {
+                    event_category: "cart",
+                    event_label: "Clear Cart"
+                });
                 await fetchCart();
                 fetchCartCount(token);
             }
@@ -203,6 +233,18 @@ const CartPage = () => {
         setIsCheckingOut(true);
         setCheckoutError('');
         setCartMessage('');
+        
+        ReactGA.event("begin_checkout", {
+            currency: "EGP",
+            value: total,
+            items: cartItems.map(item => ({
+                item_id: item.product?._id || item.package?._id || item._id,
+                item_name: item.product?.name || item.package?.name,
+                price: item.product?.price || item.package?.price,
+                quantity: item.quantity
+            }))
+        });
+
         try {
             const token = localStorage.getItem('token');
             const response = await fetch('https://nymedbackend.vercel.app/api/orders', {
@@ -211,6 +253,17 @@ const CartPage = () => {
             });
 
             if (response.ok) {
+                ReactGA.event("purchase", {
+                    transaction_id: await response.clone().json().then(d => d._id || d.orderId || Date.now().toString()), 
+                    currency: "EGP",
+                    value: total,
+                    items: cartItems.map(item => ({
+                        item_id: item.product?._id || item.package?._id || item._id,
+                        item_name: item.product?.name || item.package?.name,
+                        price: item.product?.price || item.package?.price,
+                        quantity: item.quantity
+                    }))
+                });
                 await fetchCart();
                 fetchCartCount(token);
                 setCartMessage('Order placed successfully!');
@@ -261,24 +314,33 @@ const CartPage = () => {
 
             <div className="cart-items">
                 {cartItems.map(item => {
-                    const product = item.product || {};
-                    const idToUse = product._id || item._id;
+                    // Determine if item is a product or a package
+                    const isPackage = !!item.package;
+                    const displayItem = isPackage ? item.package : item.product;
+                    
+                    if (!displayItem) return null; // Skip invalid items
+
+                    const idToUse = displayItem._id || item._id; // Use populated ID or fallback
                     
                     return (
                         <div key={idToUse} className="cart-item">
-                            <img src={product.image} alt={product.name} className="cart-item-img" />
+                            {displayItem.image ? (
+                                <img src={displayItem.image} alt={displayItem.name} className="cart-item-img" />
+                            ) : (
+                                <div className="cart-item-img-placeholder" style={{width: '80px', height: '80px', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>No Image</div>
+                            )}
                             
                             <div className="cart-item-details">
-                                <h3>{product.name}</h3>
-                                <p className="cart-item-price">{product.price} EGP</p>
-                                <p className="cart-item-stock">Stock: {product.stock}</p>
+                                <h3>{displayItem.name} {isPackage && <span style={{fontSize: '0.8rem', color: '#D4AF37', border: '1px solid #D4AF37', borderRadius: '4px', padding: '0 4px'}}>Package</span>}</h3>
+                                <p className="cart-item-price">{displayItem.price} EGP</p>
+                                <p className="cart-item-stock">Stock: {displayItem.stock}</p>
                             </div>
 
                             <div className="cart-item-actions">
                                 <div className="quantity-control small">
                                     <button 
                                         className="qty-btn" 
-                                        onClick={() => updateQuantity(idToUse, item.quantity, -1)}
+                                        onClick={() => updateQuantity(idToUse, item.quantity, -1, isPackage)}
                                         disabled={item.quantity <= 1 || processingId === idToUse}
                                     >
                                         <Minus size={14} />
@@ -286,8 +348,8 @@ const CartPage = () => {
                                     <span className="qty-display">{item.quantity}</span>
                                     <button 
                                         className="qty-btn" 
-                                        onClick={() => updateQuantity(idToUse, item.quantity, 1)}
-                                        disabled={item.quantity >= product.stock || processingId === idToUse}
+                                        onClick={() => updateQuantity(idToUse, item.quantity, 1, isPackage)}
+                                        disabled={item.quantity >= displayItem.stock || processingId === idToUse}
                                     >
                                         <Plus size={14} />
                                     </button>

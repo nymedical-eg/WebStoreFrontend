@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Loader2, Plus, Edit, Trash2, X, Save, Search, Check, Package, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, X, Save, Search, Check, Package, Image as ImageIcon, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import usePageTitle from '../hooks/usePageTitle';
 import './AdminPackagesPage.css';
 
 const AdminPackagesPage = () => {
+    const CLOUD_NAME = "dndk6lbq3"; 
+    const UPLOAD_PRESET = "NYmedUploadPreset";
+
     usePageTitle('Admin - Packages');
     const { user } = useAuth();
     const [packages, setPackages] = useState([]);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
     // Modal State
@@ -176,6 +181,41 @@ const AdminPackagesPage = () => {
         });
     };
 
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        const data = new FormData();
+        data.append("file", file);
+        data.append("upload_preset", UPLOAD_PRESET);
+        data.append("cloud_name", CLOUD_NAME);
+
+        try {
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+                method: "POST",
+                body: data
+            });
+
+            const uploadedImage = await res.json();
+            
+            if (uploadedImage.secure_url) {
+                setFormData(prev => ({
+                    ...prev,
+                    image: uploadedImage.secure_url
+                }));
+            } else {
+                 alert("Upload failed. Check console for details.");
+                 console.error("Cloudinary Error:", uploadedImage);
+            }
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("Error uploading image");
+        } finally {
+            setUploading(false);
+        }
+    };
+
     const filteredPackages = packages.filter(pkg => 
         pkg.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -188,6 +228,24 @@ const AdminPackagesPage = () => {
 
     return (
         <div className="admin-page-container">
+            <div style={{ marginBottom: '1rem' }}>
+                <Link 
+                    to="/admin" 
+                    style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem', 
+                        backgroundColor: '#D4AF37', 
+                        color: '#000', 
+                        padding: '0.5rem 1rem', 
+                        borderRadius: '4px', 
+                        textDecoration: 'none', 
+                        fontWeight: 'bold' 
+                    }}
+                >
+                    <ArrowLeft size={20} /> Back to Dashboard
+                </Link>
+            </div>
             <div className="admin-header">
                 <h1 className="admin-title">Manage Packages</h1>
                 <button 
@@ -311,21 +369,22 @@ const AdminPackagesPage = () => {
                                     />
                                 </div>
                                  <div className="form-group">
-                                    <label>Image URL</label>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <label>Package Image</label>
+                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                                         <input 
-                                            type="url" 
-                                            value={formData.image}
-                                            onChange={(e) => setFormData({...formData, image: e.target.value})}
-                                            placeholder="https://example.com/image.jpg"
+                                            type="file" 
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
                                             style={{ flex: 1 }}
                                         />
-                                        {formData.image && (
+                                        {uploading && <Loader2 className="animate-spin" size={24} color="#D4AF37" />}
+                                        {formData.image && !uploading && (
                                             <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #ddd' }}>
                                                 <img src={formData.image} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             </div>
                                         )}
                                     </div>
+                                    {formData.image && <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formData.image}</p>}
                                 </div>
                             </div>
 

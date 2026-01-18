@@ -1,5 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import ReactGA from 'react-ga4';
+
+// Initialize GA4
+ReactGA.initialize("G-N7SEJS65PW"); 
 
 // Header and Footer moved to layouts
 import LandingPage from './pages/LandingPage';
@@ -24,10 +29,22 @@ import './App.css';
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
 
+// Component to track page views
+const RouteTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+  }, [location]);
+
+  return null;
+};
+
 function App() {
   return (
     <AuthProvider>
       <Router>
+        <RouteTracker />
         <Routes>
           {/* Main Public Layout */}
           <Route element={<MainLayout />}>

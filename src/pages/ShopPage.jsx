@@ -3,6 +3,7 @@ import ProductCard from '../components/ProductCard';
 import { Loader2, X, Plus, Minus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ReactGA from 'react-ga4';
 import './ShopPage.css';
 import usePageTitle from '../hooks/usePageTitle';
 
@@ -81,6 +82,18 @@ const ShopPage = () => {
             });
 
             if (response.ok) {
+                ReactGA.event("add_to_cart", {
+                    currency: "EGP",
+                    value: selectedProduct.price * quantity,
+                    items: [
+                        {
+                            item_id: selectedProduct._id,
+                            item_name: selectedProduct.name,
+                            price: selectedProduct.price,
+                            quantity: quantity
+                        }
+                    ]
+                });
                 await fetchCartCount(token); // Update global cart count
                 closePopup();
             } else {

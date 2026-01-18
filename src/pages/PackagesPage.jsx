@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ReactGA from 'react-ga4';
 import { Loader2, X, Plus, Minus, Package as PackageIcon } from 'lucide-react';
 import ProductCard from '../components/ProductCard'; // Reusing for consistent look, but will control behavior
 import usePageTitle from '../hooks/usePageTitle';
@@ -46,6 +47,19 @@ const PackagesPage = () => {
         setPackageProducts([]);
         setProductsLoading(true);
         document.body.style.overflow = 'hidden';
+
+        ReactGA.event("view_item", {
+            currency: "EGP",
+            value: pkg.price,
+            items: [
+                {
+                    item_id: pkg._id,
+                    item_name: pkg.name,
+                    item_category: "package",
+                    price: pkg.price
+                }
+            ]
+        });
 
         // Fetch details for included products
         if (pkg.includedProducts && pkg.includedProducts.length > 0) {
@@ -117,16 +131,31 @@ const PackagesPage = () => {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    productId: selectedPackage._id, // Assuming packages are treated as products in the cart system
+                    packageId: selectedPackage._id, // Updated to use packageId as requested
                     quantity: quantity
                 })
             });
 
             if (response.ok) {
+                ReactGA.event("add_to_cart", {
+                    currency: "EGP",
+                    value: selectedPackage.price * quantity,
+                    items: [
+                        {
+                            item_id: selectedPackage._id,
+                            item_name: selectedPackage.name,
+                            item_category: "package",
+                            price: selectedPackage.price,
+                            quantity: quantity
+                        }
+                    ]
+                });
                 await fetchCartCount(token);
                 closePopup();
             } else {
-                alert("Failed to add package to cart");
+                const data = await response.json();
+                console.error("Cart Error:", data); // Log for developer
+                alert(data.message || "Failed to add package to cart"); // Show specific error to user
                 setAddingToCart(false);
             }
         } catch (error) {
