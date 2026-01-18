@@ -74,7 +74,6 @@ const SignInPage = () => {
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
-            email: formData.email,
             phone: formData.phone,
             governorate: formData.governorate,
             city: formData.city,
