@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Edit, X, Check, Package, Phone, User, Mail, Tag } from 'lucide-react';
+import { Loader2, Edit, X, Check, Package, Phone, User, Mail, Tag, MapPin } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
 
 const ProfilePage = () => {
@@ -17,7 +17,10 @@ const ProfilePage = () => {
     const [editFormData, setEditFormData] = useState({
         firstName: '',
         lastName: '',
-        phone: ''
+        phone: '',
+        governorate: '',
+        city: '',
+        address: ''
     });
 
     const statusColors = {
@@ -61,7 +64,10 @@ const ProfilePage = () => {
         setEditFormData({
             firstName: user.firstName || user.first_name || '',
             lastName: user.lastName || user.last_name || '',
-            phone: user.phone || user.phoneNumber || ''
+            phone: user.phone || user.phoneNumber || '',
+            governorate: user.governorate || '',
+            city: user.city || '',
+            address: user.address || ''
         });
         setIsEditModalOpen(true);
     };
@@ -167,6 +173,15 @@ const ProfilePage = () => {
                         </div>
                         <div style={{ fontSize: '1.2rem', fontWeight: '500', color: 'var(--color-text)' }}>
                             {user.phone || user.phoneNumber || 'Not Set'}
+                        </div>
+                    </div>
+
+                    <div>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--color-text-light)' }}>
+                            <MapPin size={16} /> <label style={{ fontSize: '0.9rem' }}>Address</label>
+                        </div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: '500', color: 'var(--color-text)' }}>
+                            {user.address ? `${user.address}, ${user.city}, ${user.governorate}` : 'No Address Set'}
                         </div>
                     </div>
                 </div>
@@ -343,6 +358,55 @@ const ProfilePage = () => {
                                 <input 
                                     value={editFormData.phone}
                                     onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                                    style={{ 
+                                        width: '100%', 
+                                        padding: '0.8rem', 
+                                        backgroundColor: 'var(--bg-secondary)', 
+                                        color: 'var(--text-primary)',
+                                        border: '1px solid var(--border-color)', 
+                                        borderRadius: '4px' 
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Governorate</label>
+                                    <input 
+                                        value={editFormData.governorate}
+                                        onChange={(e) => setEditFormData({...editFormData, governorate: e.target.value})}
+                                        style={{ 
+                                            width: '100%', 
+                                            padding: '0.8rem', 
+                                            backgroundColor: 'var(--bg-secondary)', 
+                                            color: 'var(--text-primary)',
+                                            border: '1px solid var(--border-color)', 
+                                            borderRadius: '4px' 
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>City</label>
+                                    <input 
+                                        value={editFormData.city}
+                                        onChange={(e) => setEditFormData({...editFormData, city: e.target.value})}
+                                        style={{ 
+                                            width: '100%', 
+                                            padding: '0.8rem', 
+                                            backgroundColor: 'var(--bg-secondary)', 
+                                            color: 'var(--text-primary)',
+                                            border: '1px solid var(--border-color)', 
+                                            borderRadius: '4px' 
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Address</label>
+                                <input 
+                                    value={editFormData.address}
+                                    onChange={(e) => setEditFormData({...editFormData, address: e.target.value})}
                                     style={{ 
                                         width: '100%', 
                                         padding: '0.8rem', 

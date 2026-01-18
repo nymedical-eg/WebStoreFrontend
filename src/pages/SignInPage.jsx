@@ -18,6 +18,9 @@ const SignInPage = () => {
         lastName: '',
         email: '',
         phone: '',
+        governorate: '',
+        city: '',
+        address: '',
         password: '',
         confirmPassword: ''
     });
@@ -42,6 +45,9 @@ const SignInPage = () => {
                 formData.lastName && 
                 formData.email && 
                 formData.phone && 
+                formData.governorate &&
+                formData.city &&
+                formData.address &&
                 passwordValid && 
                 passwordsMatch
             );
@@ -68,7 +74,11 @@ const SignInPage = () => {
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
+            email: formData.email,
             phone: formData.phone,
+            governorate: formData.governorate,
+            city: formData.city,
+            address: formData.address,
             password: formData.password
         };
 
@@ -210,6 +220,38 @@ const SignInPage = () => {
                                     name="phone" 
                                     placeholder="Phone Number" 
                                     value={formData.phone}
+                                    onChange={handleChange}
+                                    required 
+                                />
+                            </div>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <input 
+                                        type="text" 
+                                        name="governorate" 
+                                        placeholder="Governorate" 
+                                        value={formData.governorate}
+                                        onChange={handleChange}
+                                        required 
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <input 
+                                        type="text" 
+                                        name="city" 
+                                        placeholder="City" 
+                                        value={formData.city}
+                                        onChange={handleChange}
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <input 
+                                    type="text" 
+                                    name="address" 
+                                    placeholder="Full Address" 
+                                    value={formData.address}
                                     onChange={handleChange}
                                     required 
                                 />
