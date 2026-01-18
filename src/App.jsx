@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 // Header and Footer moved to layouts
 import LandingPage from './pages/LandingPage';
 import ShopPage from './pages/ShopPage';
+import PackagesPage from './pages/PackagesPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import ShippingPage from './pages/ShippingPage';
@@ -17,6 +18,7 @@ import AdminProductsPage from './pages/AdminProductsPage';
 import AdminOrdersPage from './pages/AdminOrdersPage';
 import AdminAdminsPage from './pages/AdminAdminsPage';
 import AdminCouponsPage from './pages/AdminCouponsPage';
+import AdminPackagesPage from './pages/AdminPackagesPage';
 import './App.css';
 
 import MainLayout from './layouts/MainLayout';
@@ -31,6 +33,7 @@ function App() {
           <Route element={<MainLayout />}>
               <Route path="/" element={<LandingPage />} />
               <Route path="/shop" element={<ShopPage />} />
+              <Route path="/packages" element={<PackagesPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/shipping" element={<ShippingPage />} />
@@ -47,6 +50,7 @@ function App() {
               <Route path="orders" element={<AdminOrdersPage />} />
               <Route path="admins" element={<AdminAdminsPage />} />
               <Route path="coupons" element={<AdminCouponsPage />} />
+              <Route path="packages" element={<AdminPackagesPage />} />
               {/* Future admin routes */}
           </Route>
         </Routes>

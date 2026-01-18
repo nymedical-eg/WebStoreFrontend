@@ -43,7 +43,7 @@ const Header = () => {
                 <nav className="nav-links">
                     <Link to="/" className="nav-link">Home</Link>
                     <Link to="/shop" className="nav-link">Shop</Link>
-                    <a href="#kits" className="nav-link">Student Kits</a>
+                    <Link to="/packages" className="nav-link">Packages</Link>
                     <Link to="/about" className="nav-link">About</Link>
                     {user?.role === 'admin' && <Link to="/admin" className="nav-link admin-link">Admin</Link>}
                 </nav>
@@ -85,7 +85,7 @@ const Header = () => {
                 <nav className="mobile-nav-links">
                     <Link to="/" className="mobile-nav-link" onClick={closeMobileMenu}>Home</Link>
                     <Link to="/shop" className="mobile-nav-link" onClick={closeMobileMenu}>Shop</Link>
-                    <a href="#kits" className="mobile-nav-link" onClick={closeMobileMenu}>Student Kits</a>
+                    <Link to="/packages" className="mobile-nav-link" onClick={closeMobileMenu}>Packages</Link>
                     <Link to="/about" className="mobile-nav-link" onClick={closeMobileMenu}>About</Link>
                     {user?.role === 'admin' && <Link to="/admin" className="mobile-nav-link admin-link" onClick={closeMobileMenu}>Admin</Link>}
                     

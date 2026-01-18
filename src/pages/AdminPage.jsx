@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Package, Users, ShoppingBag, Ticket } from 'lucide-react';
+import { Package, Users, ShoppingBag, Ticket, Box } from 'lucide-react';
 
 const AdminPage = () => {
     const { user } = useAuth();
@@ -21,7 +21,8 @@ const AdminPage = () => {
         { title: 'Orders', icon: <ShoppingBag size={48} />, path: '/admin/orders', color: '#3b82f6' },
         { title: 'Products', icon: <Package size={48} />, path: '/admin/products', color: '#D4AF37' },
         { title: 'Admins', icon: <Users size={48} />, path: '/admin/admins', color: '#10b981' },
-        { title: 'Coupons', icon: <Ticket size={48} />, path: '/admin/coupons', color: '#f43f5e' }
+        { title: 'Coupons', icon: <Ticket size={48} />, path: '/admin/coupons', color: '#f43f5e' },
+        { title: 'Packages', icon: <Box size={48} />, path: '/admin/packages', color: '#8b5cf6' }
     ];
 
     return (
