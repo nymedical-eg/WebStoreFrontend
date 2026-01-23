@@ -17,6 +17,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import SignInPage from './pages/SignInPage';
 import ProfilePage from './pages/ProfilePage';
 import CartPage from './pages/CartPage';
+import CheckoutPage from './pages/CheckoutPage';
 import AdminPage from './pages/AdminPage';
 
 import AdminProductsPage from './pages/AdminProductsPage';
@@ -58,6 +59,7 @@ function App() {
               <Route path="/signin" element={<SignInPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
           </Route>
 
           {/* Admin Layout */}

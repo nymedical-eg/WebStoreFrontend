@@ -9,7 +9,7 @@ import './PackagesPage.css';
 
 const PackagesPage = () => {
     usePageTitle('Packages');
-    const { user, fetchCartCount } = useAuth();
+    const { user, fetchCartCount, addToGuestCart } = useAuth();
     const navigate = useNavigate();
     
     // Data State
@@ -114,49 +114,79 @@ const PackagesPage = () => {
     };
 
     const confirmAddToCart = async () => {
-        if (!user) {
-            navigate('/signin');
-            return;
-        }
         if (!selectedPackage) return;
         
         setAddingToCart(true);
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('https://nymedbackend.vercel.app/api/cart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    packageId: selectedPackage._id, // Updated to use packageId as requested
-                    quantity: quantity
-                })
-            });
-
-            if (response.ok) {
-                ReactGA.event("add_to_cart", {
-                    currency: "EGP",
-                    value: selectedPackage.price * quantity,
-                    items: [
-                        {
-                            item_id: selectedPackage._id,
-                            item_name: selectedPackage.name,
-                            item_category: "package",
-                            price: selectedPackage.price,
-                            quantity: quantity
-                        }
-                    ]
+            if (user) {
+                const token = localStorage.getItem('token');
+                const response = await fetch('https://nymedbackend.vercel.app/api/cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        packageId: selectedPackage._id, // Updated to use packageId as requested
+                        quantity: quantity
+                    })
                 });
-                await fetchCartCount(token);
-                closePopup();
+
+                if (response.ok) {
+                    ReactGA.event("add_to_cart", {
+                        currency: "EGP",
+                        value: selectedPackage.price * quantity,
+                        items: [
+                            {
+                                item_id: selectedPackage._id,
+                                item_name: selectedPackage.name,
+                                item_category: "package",
+                                price: selectedPackage.price,
+                                quantity: quantity
+                            }
+                        ]
+                    });
+                    await fetchCartCount(token);
+                    closePopup();
+                } else {
+                    const data = await response.json();
+                    console.error("Cart Error:", data); // Log for developer
+                    alert(data.message || "Failed to add package to cart"); // Show specific error to user
+                    setAddingToCart(false);
+                }
             } else {
-                const data = await response.json();
-                console.error("Cart Error:", data); // Log for developer
-                alert(data.message || "Failed to add package to cart"); // Show specific error to user
-                setAddingToCart(false);
+                // Guest Flow
+                const response = await fetch('https://nymedbackend.vercel.app/api/guest/add-to-cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        packageId: selectedPackage._id,
+                        quantity: quantity
+                    })
+                });
+
+                if (response.ok) {
+                    addToGuestCart({ packageId: selectedPackage._id, quantity });
+                    ReactGA.event("add_to_cart", {
+                        currency: "EGP",
+                        value: selectedPackage.price * quantity,
+                        items: [
+                            {
+                                item_id: selectedPackage._id,
+                                item_name: selectedPackage.name,
+                                item_category: "package",
+                                price: selectedPackage.price,
+                                quantity: quantity
+                            }
+                        ]
+                    });
+                    closePopup();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || "Failed to add package to cart");
+                    setAddingToCart(false);
+                }
             }
         } catch (error) {
             console.error("Error adding to cart", error);

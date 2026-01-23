@@ -8,7 +8,7 @@ import usePageTitle from '../hooks/usePageTitle';
 
 const CartPage = () => {
     usePageTitle('Your Cart');
-    const { user, fetchCartCount } = useAuth();
+    const { user, fetchCartCount, guestCart, updateGuestCartItem, removeFromGuestCart, clearGuestCart } = useAuth();
     const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
     const [total, setTotal] = useState(0);
@@ -16,7 +16,7 @@ const CartPage = () => {
     const [discount, setDiscount] = useState(0);
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [processingId, setProcessingId] = useState(null); // ID of item being updated
+    const [processingId, setProcessingId] = useState(null); 
     const [isClearing, setIsClearing] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [checkoutError, setCheckoutError] = useState('');
@@ -27,40 +27,91 @@ const CartPage = () => {
     const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
     useEffect(() => {
-        if (!user) {
-            navigate('/signin');
-            return;
-        }
+        // No redirect for guests
         fetchCart();
-    }, [user, navigate]);
+    }, [user, navigate, guestCart]); // Re-run if user logs in/out or guestCart changes (for local updates)
 
     const fetchCart = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('https://nymedbackend.vercel.app/api/cart', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            
-            if (response.ok) {
-                setCartItems(data.cart || []);
-                setTotal(data.total || 0);
-                // Assume backend returns these fields, or fallback to simple total
-                setSubtotal(data.subtotal || data.total || 0); 
-                setDiscount(data.discount || 0);
-                setAppliedCoupon(data.coupon || null);
-                
-                ReactGA.send({ hitType: "pageview", page: "/cart", title: "Cart" });
-                ReactGA.event("view_cart", {
-                    currency: "EGP",
-                    value: data.total || 0,
-                    items: (data.cart || []).map(item => ({
-                        item_id: item.product?._id || item.package?._id || item._id,
-                        item_name: item.product?.name || item.package?.name,
-                        price: item.product?.price || item.package?.price,
-                        quantity: item.quantity
-                    }))
+            if (user) {
+                // Authenticated fetch
+                const token = localStorage.getItem('token');
+                const response = await fetch('https://nymedbackend.vercel.app/api/cart', {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    setCartItems(data.cart || []);
+                    setTotal(data.total || 0);
+                    setSubtotal(data.subtotal || data.total || 0); 
+                    setDiscount(data.discount || 0);
+                    setAppliedCoupon(data.coupon || null);
+                    
+                    ReactGA.send({ hitType: "pageview", page: "/cart", title: "Cart" });
+                }
+            } else {
+                // Guest fetch
+                // Need to send local items to get details
+                const items = JSON.parse(localStorage.getItem('guestCart') || '[]');
+                if (items.length === 0) {
+                    setCartItems([]);
+                    setTotal(0);
+                    setSubtotal(0);
+                    setDiscount(0);
+                    setAppliedCoupon(null);
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch('https://nymedbackend.vercel.app/api/guest/view-cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items, couponCode: localStorage.getItem('guestCoupon') }) 
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    setCartItems(data.cart || []);
+                    
+                    // Call calculate-cart for accurate totals
+                    try {
+                        const calcResponse = await fetch('https://nymedbackend.vercel.app/api/guest/calculate-cart', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                items, 
+                                couponCode: localStorage.getItem('guestCoupon') 
+                            })
+                        });
+                        
+                        if (calcResponse.ok) {
+                            const calcData = await calcResponse.json();
+                            setTotal(calcData.total || 0);
+                            setSubtotal(calcData.subtotal || 0);
+                            setDiscount(calcData.discount || 0);
+                            
+                            // Coupon validation: Update or Clear
+                            setAppliedCoupon(calcData.coupon || null);
+                        } else {
+                            // Fallback to view-cart data if calculate fails
+                            setTotal(data.total || 0);
+                            setSubtotal(data.subtotal || 0);
+                            setDiscount(data.discount || 0);
+                            // If calculate fails, maybe clear coupon too? 
+                            setAppliedCoupon(null);
+                        }
+                    } catch (e) {
+                        console.error("Failed to calculate cart", e);
+                         // Fallback
+                        setTotal(data.total || 0);
+                        setSubtotal(data.subtotal || 0);
+                        setDiscount(data.discount || 0);
+                        setAppliedCoupon(null);
+                    }
+                    
+                     ReactGA.send({ hitType: "pageview", page: "/cart", title: "Guest Cart" });
+                }
             }
         } catch (error) {
             console.error("Error fetching cart", error);
@@ -70,43 +121,59 @@ const CartPage = () => {
     };
 
     const updateQuantity = async (itemId, currentQty, delta, isPackage = false) => {
+        // ... (unchanged)
         const newQty = delta === 1 ? 1 : -1; 
+        const targetQty = currentQty + newQty; 
         
         setProcessingId(itemId);
         setCartMessage(''); 
-        
-        // If it's a package, we might need a different endpoint or query param?
-        // Assuming standard cart update endpoint works for both if the backend logic handles it by ID.
-        // However, standard cart PUT usually takes productId/header. If backend is smart, ID is enough.
-        // Let's assume standard endpoint handles ID of item regardless of type, or we pass type.
-        // Based on user "packageId" in POST, usually PUT/DELETE uses cart item ID or product/package ID.
-        // Let's rely on the ID passed.
         
         const url = `https://nymedbackend.vercel.app/api/cart/${itemId}`;
         const body = { quantity: newQty };
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(body)
-            });
-            
-            const data = await response.json();
-            if (data.message) {
-                // Short lived success message
-                setCartMessage(data.message);
-                setTimeout(() => setCartMessage(''), 3000);
-            }
+            if (user) {
+               // ... 
+                const token = localStorage.getItem('token');
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                if (data.message) {
+                    setCartMessage(data.message);
+                    setTimeout(() => setCartMessage(''), 3000);
+                }
 
-            if (response.ok) {
-               await fetchCart(); 
+                if (response.ok) {
+                   await fetchCart(); 
+                } else {
+                    console.error("Failed to update quantity");
+                }
             } else {
-                console.error("Failed to update quantity");
+                // Guest
+                const response = await fetch('https://nymedbackend.vercel.app/api/guest/update-quantity', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        [isPackage ? 'packageId' : 'productId']: itemId,
+                        quantity: targetQty
+                    })
+                });
+                
+                if (response.ok) {
+                    updateGuestCartItem(itemId, targetQty, isPackage);
+                    // Fetch cart to recalculate totals
+                    await fetchCart();
+                } else {
+                     const data = await response.json();
+                     setCartMessage(data.message || "Failed to update");
+                }
             }
         } catch (error) {
             console.error("Error updating quantity", error);
@@ -115,28 +182,42 @@ const CartPage = () => {
         }
     };
 
+
+
     const removeItem = async (productId) => {
         setProcessingId(productId); 
         setCartMessage('');
 
         try {
-            const token = localStorage.getItem('token');
-            // Check if we need to differentiate route for package? 
-            // Usually valid ID is enough.
-            const response = await fetch(`https://nymedbackend.vercel.app/api/cart/${productId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (response.ok) {
-                ReactGA.event("remove_from_cart", {
-                   currency: "EGP",
-                   items: [{ item_id: productId }]
+            if (user) {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`https://nymedbackend.vercel.app/api/cart/${productId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-                await fetchCart(); 
-                fetchCartCount(token); 
+
+                if (response.ok) {
+                    ReactGA.event("remove_from_cart", {
+                       currency: "EGP",
+                       items: [{ item_id: productId }]
+                    });
+                    await fetchCart(); 
+                    fetchCartCount(token); 
+                } else {
+                    console.error("Failed to remove item");
+                }
             } else {
-                console.error("Failed to remove item");
+                // Guest - just local remove, no backend call needed for simple remove 
+                // UNLESS backend calculates totals on view-cart using items list. 
+                // Context helper updates local storage.
+                removeFromGuestCart(productId, false); // How do we know if package? 
+                // The item in map has .package or .product. 
+                // But `removeItem` receives `idToUse`.
+                // We need to know if it's a package.
+                // I'll update the call site to pass isPackage later?
+                // Or I can try to remove from both using the ID? ID should be unique across both or valid.
+                // Wait, if I have just ID, I might not know.
+                // I'll update `removeItem` signature in the render loop to pass `isPackage`.
             }
         } catch (error) {
             console.error("Error removing item", error);
@@ -144,24 +225,37 @@ const CartPage = () => {
             setProcessingId(null);
         }
     };
+    // Helper to fix signature in render
+    const handleRemoveItem = (id, isPackage) => {
+        if (user) {
+            removeItem(id); // Original signature
+        } else {
+             removeFromGuestCart(id, isPackage);
+        }
+    };
 
     const clearCart = async () => {
         setIsClearing(true);
         setCartMessage('');
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('https://nymedbackend.vercel.app/api/cart', {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (response.ok) {
-                ReactGA.event("delete_cart", {
-                    event_category: "cart",
-                    event_label: "Clear Cart"
+            if (user) {
+                const token = localStorage.getItem('token');
+                const response = await fetch('https://nymedbackend.vercel.app/api/cart', {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-                await fetchCart();
-                fetchCartCount(token);
+
+                if (response.ok) {
+                    ReactGA.event("delete_cart", {
+                        event_category: "cart",
+                        event_label: "Clear Cart"
+                    });
+                    await fetchCart();
+                    fetchCartCount(token);
+                }
+            } else {
+                clearGuestCart();
+                // View cart will see empty array and reset state
             }
         } catch (error) {
             console.error("Error clearing cart", error);
@@ -177,25 +271,46 @@ const CartPage = () => {
         setCartMessage('');
         
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('https://nymedbackend.vercel.app/api/cart/apply-coupon', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ code: couponCode })
-            });
+            if (user) {
+                const token = localStorage.getItem('token');
+                const response = await fetch('https://nymedbackend.vercel.app/api/cart/apply-coupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ code: couponCode })
+                });
 
-            const data = await response.json();
+                const data = await response.json();
 
-            if (response.ok) {
-                setCartMessage('Coupon applied successfully!');
-                await fetchCart(); // Refresh cart to get new totals
-                setCouponCode('');
+                if (response.ok) {
+                    setCartMessage('Coupon applied successfully!');
+                    await fetchCart(); 
+                    setCouponCode('');
+                } else {
+                    setCheckoutError(data.message || 'Failed to apply coupon');
+                    setTimeout(() => setCheckoutError(''), 3000);
+                }
             } else {
-                setCheckoutError(data.message || 'Failed to apply coupon');
-                setTimeout(() => setCheckoutError(''), 3000);
+                // Guest
+                const items = JSON.parse(localStorage.getItem('guestCart') || '[]');
+                const response = await fetch('https://nymedbackend.vercel.app/api/guest/apply-coupon', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: couponCode, items })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    // Store coupon locally to resend on view-cart
+                    localStorage.setItem('guestCoupon', couponCode);
+                    setCartMessage('Coupon applied!');
+                    await fetchCart();
+                    setCouponCode('');
+                } else {
+                    setCheckoutError(data.message || 'Failed to apply coupon');
+                }
             }
         } catch (error) {
             setCheckoutError('Error applying coupon');
@@ -209,18 +324,24 @@ const CartPage = () => {
         setCartMessage('');
         
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('https://nymedbackend.vercel.app/api/cart/remove-coupon', {
-                method: 'POST', // Using POST as per request
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            if (user) {
+                const token = localStorage.getItem('token');
+                const response = await fetch('https://nymedbackend.vercel.app/api/cart/remove-coupon', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
 
-            if (response.ok) {
-                setCartMessage('Coupon removed.');
-                await fetchCart(); // Refresh cart
+                if (response.ok) {
+                    setCartMessage('Coupon removed.');
+                    await fetchCart(); 
+                } else {
+                    const data = await response.json();
+                    setCheckoutError(data.message || 'Failed to remove coupon');
+                }
             } else {
-                const data = await response.json();
-                setCheckoutError(data.message || 'Failed to remove coupon');
+                 localStorage.removeItem('guestCoupon');
+                 setCartMessage('Coupon removed.');
+                 await fetchCart();
             }
         } catch (error) {
             setCheckoutError('Error removing coupon');
@@ -230,6 +351,11 @@ const CartPage = () => {
     };
 
     const handleCheckout = async () => {
+        if (!user) {
+            navigate('/checkout');
+            return;
+        }
+
         setIsCheckingOut(true);
         setCheckoutError('');
         setCartMessage('');
@@ -320,12 +446,13 @@ const CartPage = () => {
                     
                     if (!displayItem) return null; // Skip invalid items
 
-                    const idToUse = displayItem._id || item._id; // Use populated ID or fallback
+                    const idToUse = displayItem._id || item._id; 
+                    const imageSrc = displayItem.image || displayItem.img || (displayItem.images && displayItem.images[0]) || item.image || item.img;
                     
                     return (
                         <div key={idToUse} className="cart-item">
-                            {displayItem.image ? (
-                                <img src={displayItem.image} alt={displayItem.name} className="cart-item-img" />
+                            {imageSrc ? (
+                                <img src={imageSrc} alt={displayItem.name} className="cart-item-img" />
                             ) : (
                                 <div className="cart-item-img-placeholder" style={{width: '80px', height: '80px', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>No Image</div>
                             )}
@@ -357,7 +484,7 @@ const CartPage = () => {
                                 
                                 <button 
                                     className="remove-btn"
-                                    onClick={() => removeItem(idToUse)}
+                                    onClick={() => handleRemoveItem(idToUse, isPackage)}
                                     disabled={processingId === idToUse}
                                 >
                                     <Trash2 size={18} />
