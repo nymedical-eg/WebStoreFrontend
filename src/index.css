@@ -5,6 +5,7 @@
   --color-text-light: #666666;
   --color-bg: #FFFFFF;
   --color-bg-alt: #F8F9FA;
+  --border-color: #e5e7eb; /* Light Gray */
   
   --font-main: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   
@@ -26,6 +27,7 @@
   --color-text-light: #B0B0B0;
   --color-bg: #121212;
   --color-bg-alt: #1E1E1E;
+  --border-color: #374151; /* Dark Gray */
 }
 
 * {
@@ -41,4 +43,15 @@ body {
 
 button {
   cursor: pointer;
+}
+
+/* Global Input Styles as Requested */
+input, textarea, select {
+  border: 1px solid #d1d5db; /* Light Gray */
+}
+
+[data-theme='dark'] input, 
+[data-theme='dark'] textarea, 
+[data-theme='dark'] select {
+  border: 1px solid #4b5563; /* Darker Gray for Dark Mode */
 }

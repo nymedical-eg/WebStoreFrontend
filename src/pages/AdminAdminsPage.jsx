@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Loader2, ArrowLeft, Shield } from 'lucide-react';
+import '../styles/AdminResponsive.css';
 
 const AdminAdminsPage = () => {
     const { user } = useAuth();
@@ -36,7 +37,7 @@ const AdminAdminsPage = () => {
     if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 className="animate-spin" size={40} color="#D4AF37" /></div>;
 
     return (
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '1rem' }}>
             <div style={{ marginBottom: '1rem' }}>
                 <a 
                     href="/admin" 
@@ -67,6 +68,7 @@ const AdminAdminsPage = () => {
                     admins.map(admin => (
                         <div 
                             key={admin._id} 
+                            className="mobile-card"
                             style={{ 
                                 backgroundColor: 'var(--bg-secondary)', 
                                 padding: '1.5rem', 

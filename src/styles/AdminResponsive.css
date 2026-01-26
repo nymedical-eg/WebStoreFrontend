@@ -1,0 +1,130 @@
+/* AdminResponsive.css */
+
+/* General Mobile Adjustments */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Stack flex containers that are row by default */
+    .mobile-stack {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+    }
+
+    /* Adjust grid columns for mobile */
+    .mobile-grid-1 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Full width buttons on mobile */
+    .mobile-full-width-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    /* Card adjustments */
+    .mobile-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    .mobile-card-image {
+        width: 100% !important;
+        height: 200px !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    .mobile-card-content {
+        width: 100% !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    .mobile-card-actions {
+        width: 100% !important;
+        justify-content: stretch !important;
+        margin-top: 1rem !important;
+    }
+    
+    .mobile-card-actions button {
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* Modal Adjustments */
+    .mobile-modal-content {
+        width: 95% !important;
+        padding: 1rem !important;
+        max-height: 85vh !important;
+    }
+
+    /* Table Transformations for Mobile */
+    .table-mobile-cards table, 
+    .table-mobile-cards thead, 
+    .table-mobile-cards tbody, 
+    .table-mobile-cards th, 
+    .table-mobile-cards td, 
+    .table-mobile-cards tr { 
+        display: block; 
+    }
+    
+    .table-mobile-cards thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    .table-mobile-cards tr { 
+        border: 1px solid #D4AF37;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        background-color: var(--bg-secondary);
+        padding: 1rem;
+    }
+    
+    .table-mobile-cards td { 
+        border: none;
+        border-bottom: 1px solid #eee; 
+        position: relative;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .table-mobile-cards td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        text-align: center;
+        margin-right: 0;
+        margin-bottom: 0.25rem;
+        color: #D4AF37; /* Gold label */
+    }
+
+    /* Filter Bar Stacking */
+    .filter-bar-stack {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .filter-bar-stack > * {
+        width: 100%;
+    }
+
+    .filter-bar-stack input,
+    .filter-bar-stack select {
+        width: 100% !important;
+    }
+}

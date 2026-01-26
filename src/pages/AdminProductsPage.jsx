@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Edit2, Trash2, X, Loader2, ArrowLeft } from 'lucide-react';
+import '../styles/AdminResponsive.css';
 
 const AdminProductsPage = () => {
     const CLOUD_NAME = "dndk6lbq3"; 
@@ -184,7 +185,7 @@ const AdminProductsPage = () => {
     if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 className="animate-spin" size={40} color="#D4AF37" /></div>;
 
     return (
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '1rem' }}>
             <div style={{ marginBottom: '1rem' }}>
                 <a 
                     href="/admin" 
@@ -228,6 +229,7 @@ const AdminProductsPage = () => {
                 {products.map(product => (
                     <div 
                         key={product._id} 
+                        className="mobile-card"
                         style={{ 
                             backgroundColor: 'var(--bg-secondary)', 
                             padding: '1.5rem', 
@@ -235,13 +237,15 @@ const AdminProductsPage = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            border: '1px solid var(--border-color)'
+                            justifyContent: 'space-between',
+                            border: '1px solid #D4AF37'
                         }}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <div className="mobile-card-content" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                             <img 
                                 src={product.image} 
                                 alt={product.name} 
+                                className="mobile-card-image"
                                 style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px' }} 
                             />
                             <div>
@@ -251,7 +255,7 @@ const AdminProductsPage = () => {
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '1rem' }}>
+                        <div className="mobile-card-actions" style={{ display: 'flex', gap: '1rem' }}>
                             <button 
                                 onClick={() => openModal(product)}
                                 style={{ 
@@ -259,7 +263,7 @@ const AdminProductsPage = () => {
                                     border: '1px solid #D4AF37', 
                                     color: '#D4AF37', 
                                     padding: '0.5rem 1rem', 
-                                    borderRadius: '4px',
+                                    borderRadius: '4px', 
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -275,7 +279,7 @@ const AdminProductsPage = () => {
                                     border: 'none', 
                                     color: 'white', 
                                     padding: '0.5rem 1rem', 
-                                    borderRadius: '4px',
+                                    borderRadius: '4px', 
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -301,6 +305,7 @@ const AdminProductsPage = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
+                        className="mobile-modal-content"
                         style={{
                             backgroundColor: 'var(--color-bg)',
                             padding: '2rem',
@@ -370,7 +375,7 @@ const AdminProductsPage = () => {
                                 />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div className="mobile-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                     <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Price (EGP)</label>
                                     <input 

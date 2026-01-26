@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Search, Filter, Edit, Check, Loader2, ArrowLeft, Tag } from 'lucide-react';
+import '../styles/AdminResponsive.css';
 
 const AdminOrdersPage = () => {
     const { user } = useAuth();
@@ -293,7 +294,7 @@ const AdminOrdersPage = () => {
     if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 className="animate-spin" size={40} color="#D4AF37" /></div>;
 
     return (
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '1rem' }}>
             <div style={{ marginBottom: '1rem' }}>
                 <a 
                     href="/admin" 
@@ -315,7 +316,10 @@ const AdminOrdersPage = () => {
             <h1 style={{ marginBottom: '2rem' }}>Manage Orders</h1>
 
             {/* Filter Bar */}
-            <div style={{ 
+            {/* Filter Bar */}
+            <div 
+                className="filter-bar-stack"
+                style={{ 
                 display: 'flex', 
                 gap: '1rem', 
                 marginBottom: '2rem', 
@@ -369,7 +373,7 @@ const AdminOrdersPage = () => {
                                 boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                             }}
                         >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                            <div className="mobile-stack" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                                 <div>
                                     <h3 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>Order #{order._id}</h3>
                                     <p style={{ fontSize: '0.9rem', color: 'var(--text-light)' }}>
@@ -459,6 +463,7 @@ const AdminOrdersPage = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
+                        className="mobile-modal-content"
                         style={{
                             backgroundColor: 'var(--color-bg)',
                             padding: '2rem',

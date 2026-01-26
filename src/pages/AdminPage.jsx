@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Package, Users, ShoppingBag, Ticket, Box } from 'lucide-react';
+import '../styles/AdminResponsive.css';
 
 const AdminPage = () => {
     const { user } = useAuth();
@@ -26,7 +27,7 @@ const AdminPage = () => {
     ];
 
     return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem' }}>
             <h1 style={{ marginBottom: '2rem', textAlign: 'center' }}>Admin Dashboard</h1>
             
             <div style={{ 

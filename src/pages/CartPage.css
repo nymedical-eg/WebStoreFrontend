@@ -281,3 +281,58 @@
 .discount-value {
     color: #ef4444; /* Red for discount subtraction */
 }
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .cart-page {
+        padding: 1rem;
+    }
+
+    .cart-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .cart-item-img {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .quantity-control {
+        margin-bottom: 0 !important;
+    }
+
+    .cart-item-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+        margin-top: 0.5rem;
+        gap: 1.5rem;
+    }
+    
+    .remove-btn {
+        margin-left: 1rem;
+    }
+
+    .coupon-section {
+        margin-left: 0;
+        max-width: 100%;
+    }
+    
+    .cart-footer {
+        text-align: center;
+    }
+    
+    .cart-summary-row {
+        justify-content: space-between;
+    }
+    
+    .checkout-btn {
+        width: 100%;
+    }
+}

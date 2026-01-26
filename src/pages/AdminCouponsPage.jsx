@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Edit2, Trash2, X, Loader2, ArrowLeft, Check } from 'lucide-react';
+import '../styles/AdminResponsive.css';
 
 const AdminCouponsPage = () => {
     const { user } = useAuth();
@@ -225,7 +226,7 @@ const AdminCouponsPage = () => {
     if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 className="animate-spin" size={40} color="#D4AF37" /></div>;
 
     return (
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '1rem' }}>
             <div style={{ marginBottom: '1rem' }}>
                 <a 
                     href="/admin" 
@@ -274,6 +275,7 @@ const AdminCouponsPage = () => {
                         return (
                         <div 
                             key={coupon._id} 
+                            className="mobile-card"
                             style={{ 
                                 backgroundColor: 'var(--bg-secondary)', 
                                 padding: '1.5rem', 
@@ -301,7 +303,7 @@ const AdminCouponsPage = () => {
                                 </p>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '1rem' }}>
+                            <div className="mobile-card-actions" style={{ display: 'flex', gap: '1rem' }}>
                                 <button 
                                     onClick={() => openModal(coupon)}
                                     style={{ 
@@ -353,6 +355,7 @@ const AdminCouponsPage = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
+                        className="mobile-modal-content"
                         style={{
                             backgroundColor: 'var(--color-bg)',
                             padding: '2rem',
@@ -386,7 +389,7 @@ const AdminCouponsPage = () => {
                                 />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div className="mobile-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                     <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Discount Percentage (%)</label>
                                     <input 

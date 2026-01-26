@@ -4,6 +4,7 @@ import { Loader2, Plus, Edit, Trash2, X, Save, Search, Check, Package, Image as 
 import { Link } from 'react-router-dom';
 import usePageTitle from '../hooks/usePageTitle';
 import './AdminPackagesPage.css';
+import '../styles/AdminResponsive.css';
 
 const AdminPackagesPage = () => {
     const CLOUD_NAME = "dndk6lbq3"; 
@@ -267,7 +268,7 @@ const AdminPackagesPage = () => {
             </div>
 
             <div className="table-container">
-                <table className="admin-table">
+                <table className="admin-table table-mobile-cards">
                     <thead>
                         <tr>
                             <th>Image</th>
@@ -326,7 +327,7 @@ const AdminPackagesPage = () => {
             {/* Add/Edit Modal */}
             {isModalOpen && (
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-                    <div className="modal-content" style={{ maxWidth: '800px' }} onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-content mobile-modal-content" style={{ maxWidth: '800px' }} onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>{editingPackage ? 'Edit Package' : 'Add New Package'}</h2>
                             <button className="close-btn" onClick={() => setIsModalOpen(false)}>
@@ -334,7 +335,7 @@ const AdminPackagesPage = () => {
                             </button>
                         </div>
                         <form onSubmit={handleSave} className="modal-form">
-                            <div className="form-row">
+                            <div className="form-row mobile-stack">
                                 <div className="form-group">
                                     <label>Package Name</label>
                                     <input 
@@ -357,7 +358,7 @@ const AdminPackagesPage = () => {
                                 </div>
                             </div>
 
-                            <div className="form-row">
+                            <div className="form-row mobile-stack">
                                 <div className="form-group">
                                      <label>Stock</label>
                                     <input 
