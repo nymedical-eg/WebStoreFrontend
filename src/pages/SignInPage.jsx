@@ -3,6 +3,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './SignInPage.css';
+import { governorates } from '../constants/governorates.js';
 import usePageTitle from '../hooks/usePageTitle';
 
 const SignInPage = () => {
@@ -225,14 +226,31 @@ const SignInPage = () => {
                             </div>
                             <div className="form-row">
                                 <div className="form-group">
-                                    <input 
-                                        type="text" 
+                                    <select 
                                         name="governorate" 
-                                        placeholder="Governorate" 
                                         value={formData.governorate}
                                         onChange={handleChange}
-                                        required 
-                                    />
+                                        required
+                                        className="governorate-select"
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.75rem',
+                                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            borderRadius: '8px',
+                                            color: '#fff',
+                                            fontSize: '0.95rem',
+                                            outline: 'none',
+                                            transition: 'border-color 0.3s'
+                                        }}
+                                    >
+                                        <option value="" style={{color: '#000'}}>Select Governorate</option>
+                                        {governorates.map((gov) => (
+                                            <option key={gov} value={gov} style={{color: '#000'}}>
+                                                {gov}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="form-group">
                                     <input 

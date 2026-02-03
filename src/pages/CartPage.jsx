@@ -14,6 +14,7 @@ const CartPage = () => {
     const [total, setTotal] = useState(0);
     const [subtotal, setSubtotal] = useState(0);
     const [discount, setDiscount] = useState(0);
+    const [shippingCost, setShippingCost] = useState(0);
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState(null); 
@@ -46,6 +47,7 @@ const CartPage = () => {
                     setTotal(data.total || 0);
                     setSubtotal(data.subtotal || data.total || 0); 
                     setDiscount(data.discount || 0);
+                    setShippingCost(data.shippingCost || 0);
                     setAppliedCoupon(data.coupon || null);
                     
                     ReactGA.send({ hitType: "pageview", page: "/cart", title: "Cart" });
@@ -59,6 +61,7 @@ const CartPage = () => {
                     setTotal(0);
                     setSubtotal(0);
                     setDiscount(0);
+                    setShippingCost(0);
                     setAppliedCoupon(null);
                     setLoading(false);
                     return;
@@ -544,6 +547,12 @@ const CartPage = () => {
                         <div className="cart-summary-row">
                             <span className="cart-summary-label">Discount:</span>
                             <span className="cart-summary-value discount-value">- {discount.toFixed(2)} EGP</span>
+                        </div>
+                    )}
+                    {user && (
+                        <div className="cart-summary-row">
+                            <span className="cart-summary-label">Shipping:</span>
+                            <span className="cart-summary-value">{shippingCost > 0 ? `${shippingCost.toFixed(2)} EGP` : 'Free'}</span>
                         </div>
                     )}
                     <div className="cart-summary-row total">

@@ -5,6 +5,7 @@ import { Loader2, ArrowLeft } from 'lucide-react';
 import './CheckoutPage.css';
 import usePageTitle from '../hooks/usePageTitle';
 import ReactGA from 'react-ga4';
+import { governorates } from '../constants/governorates.js';
 
 const CheckoutPage = () => {
     usePageTitle('Checkout');
@@ -169,6 +170,13 @@ const CheckoutPage = () => {
         );
     }
 
+    // Calculate shipping based on governorate
+    const shippingCost = formData.governorate 
+        ? (formData.governorate.toLowerCase() === 'cairo' ? 100 : 150)
+        : 0;
+    
+    const finalTotal = cartTotal + shippingCost;
+
     return (
         <div className="checkout-page">
             <button className="back-link" onClick={() => navigate('/cart')}>
@@ -206,7 +214,17 @@ const CheckoutPage = () => {
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Governorate</label>
-                                <input type="text" name="governorate" value={formData.governorate} onChange={handleChange} required placeholder="e.g. Cairo" />
+                                <select 
+                                    name="governorate" 
+                                    value={formData.governorate} 
+                                    onChange={handleChange} 
+                                    required
+                                >
+                                    <option value="">Select Governorate</option>
+                                    {governorates.map(gov => (
+                                        <option key={gov} value={gov}>{gov}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label>City</label>
@@ -220,7 +238,7 @@ const CheckoutPage = () => {
                         </div>
 
                         <button type="submit" className="submit-order-btn" disabled={submitting}>
-                            {submitting ? <Loader2 className="animate-spin" /> : `Place Order (${cartTotal.toFixed(2)} EGP)`}
+                            {submitting ? <Loader2 className="animate-spin" /> : `Place Order (${finalTotal.toFixed(2)} EGP)`}
                         </button>
                     </form>
                 </div>
@@ -242,6 +260,16 @@ const CheckoutPage = () => {
                             })}
                         </div>
 
+                        <div className="summary-row" style={{marginBottom: '0.5rem', fontSize: '0.9rem', color: '#555'}}>
+                            <span>Subtotal</span>
+                            <span>{cartTotal.toFixed(2)} EGP</span>
+                        </div>
+
+                        <div className="summary-row" style={{marginBottom: '0.5rem', fontSize: '0.9rem', color: '#555'}}>
+                            <span>Shipping</span>
+                            <span>{shippingCost > 0 ? `${shippingCost.toFixed(2)} EGP` : 'Calculated at checkout'}</span>
+                        </div>
+
                         {appliedCoupon && (
                             <div className="summary-row" style={{ color: '#2ecc71', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
                                 <span>Coupon: {appliedCoupon.code || appliedCoupon}</span>
@@ -251,7 +279,7 @@ const CheckoutPage = () => {
 
                         <div className="summary-row total">
                             <span>Total</span>
-                            <span>{cartTotal.toFixed(2)} EGP</span>
+                            <span>{finalTotal.toFixed(2)} EGP</span>
                         </div>
                     </div>
                 </div>
